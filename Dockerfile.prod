@@ -2,11 +2,15 @@ FROM golang:1.20 AS builder
 
 WORKDIR /usr/src/
 
+RUN apt-get update -y && \
+    apt install upx -y
+
 COPY go.mod ./
 RUN go mod download && go mod verify
 
 COPY main.go .
 RUN go build -ldflags "-s -w" -o ./build/app ./main.go
+RUN upx --best --lzma ./build/app
 
 FROM busybox:uclibc
 WORKDIR /usr/src
